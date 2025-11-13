@@ -1,0 +1,84 @@
+import math
+import random
+
+def objective_function(x):
+    """Целевая функция: f(x) = (x-7)² + 5"""
+    return (x - 7) ** 2 + 5
+
+def simulated_annealing():
+    """Имитация отжига для минимизации функции"""
+    
+    # Параметры алгоритма
+    initial_temp = 100.0
+    cooling_rate = 0.95
+    max_iterations = 1000
+    search_min = 0
+    search_max = 20
+    
+    # Инициализация
+    current_solution = random.uniform(search_min, search_max)
+    current_energy = objective_function(current_solution)
+    
+    # Лучшее решение
+    best_solution = current_solution
+    best_energy = current_energy
+    
+    temperature = initial_temp
+    
+    print("Запуск имитации отжига для функции f(x) = (x-7)² + 5")
+    print(f"Диапазон поиска: [{search_min}, {search_max}]")
+    print(f"Начальное решение: x = {current_solution:.4f}, f(x) = {current_energy:.4f}")
+    print()
+    
+    # Основной цикл
+    for iteration in range(max_iterations):
+        # Генерация соседнего решения
+        neighbor_solution = current_solution + random.uniform(-1, 1)
+        
+        # Проверка границ поиска
+        if neighbor_solution < search_min:
+            neighbor_solution = search_min
+        elif neighbor_solution > search_max:
+            neighbor_solution = search_max
+        
+        # Вычисление энергии соседнего решения
+        neighbor_energy = objective_function(neighbor_solution)
+        
+        # Разница энергий
+        energy_difference = neighbor_energy - current_energy
+
+# Критерий принятия решения
+        if energy_difference < 0:
+            # Принимаем лучшее решение
+            current_solution = neighbor_solution
+            current_energy = neighbor_energy
+        else:
+            # Вероятностное принятие худшего решения
+            acceptance_probability = math.exp(-energy_difference / temperature)
+            if random.random() < acceptance_probability:
+                current_solution = neighbor_solution
+                current_energy = neighbor_energy
+        
+        # Обновление лучшего решения
+        if current_energy < best_energy:
+            best_solution = current_solution
+            best_energy = current_energy
+        
+        # Охлаждение
+        temperature *= cooling_rate
+        
+        # Вывод прогресса каждые 100 итераций
+        if iteration % 100 == 0:
+            print(f"Итерация {iteration}: x = {current_solution:.4f}, f(x) = {current_energy:.4f}, T = {temperature:.4f}")
+    
+    return best_solution, best_energy
+
+# Запуск алгоритма
+optimal_x, optimal_value = simulated_annealing()
+
+print()
+print("РЕЗУЛЬТАТЫ:")
+print(f"Найденный минимум: f({optimal_x:.6f}) = {optimal_value:.6f}")
+print(f"Ожидаемый минимум: f(7.000000) = 5.000000")
+print(f"Погрешность: {abs(optimal_value - 5):.6f}")
+
